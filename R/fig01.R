@@ -41,9 +41,27 @@ stations <-
   filter(station_type %in% c("Full", "Basic")) %>%
   mutate(transect = str_sub(station, 1, 2))
 
-transect <- stations %>%
-  group_by(transect) %>%
-  filter(longitude == max(longitude))
+transect <- tibble(
+  transect = paste0("G", 1:7),
+  latitude = c(
+    68.4583333333333,
+    68.75,
+    68.9963166666667,
+    68.1,
+    70.00445,
+    70.5113,
+    69.5008833333333
+  ),
+  longitude = c(
+    -56,
+    -57.2,
+    -56,
+    -56,
+    -56,
+    -57.5,
+    -56
+  )
+)
 
 p <- bb2 %>%
   mba.surf(no.X = 600, no.Y = 600, sp = TRUE) %>%
@@ -58,7 +76,7 @@ p <- bb2 %>%
     data = wm,
     size = 0.1,
     inherit.aes = FALSE,
-    fill = "gray95"
+    fill = "white"
   ) +
   coord_sf(xlim = c(-70, -45), ylim = c(65, 72)) +
   annotate(
@@ -120,9 +138,9 @@ p <- bb2 %>%
   theme(
     legend.justification = c(1, 0),
     legend.position = c(0.98, 0.01),
-    legend.background = element_rect(fill = "gray95"),
+    legend.background = element_rect(fill = "white"),
     panel.background = element_rect(fill = "#B9DDF1"),
-    legend.key = element_rect(fill = "gray95"),
+    legend.key = element_rect(fill = "white"),
     panel.grid = element_blank()
   ) +
   labs(
@@ -137,20 +155,21 @@ p <- bb2 %>%
       group = transect
     ),
     inherit.aes = FALSE,
-    expand = unit(1, "mm"),
+    expand = unit(1.5, "mm"),
     size = 0.25,
     con.size = 0.25,
     label.buffer = unit(7, "mm"),
     label.fontsize = 8,
-    tol = 0.001
+    tol = 0.001,
+    color = "#3c3c3c"
   ) +
-  ggrepel::geom_text_repel(
+  geom_text(
     data = transect,
     aes(x = longitude, y = latitude, label = transect),
     inherit.aes = FALSE,
-    hjust = 0,
-    vjust = 2,
-    size = 3
+    size = 3,
+    color = "#3c3c3c",
+    fontface = 2
   ) +
   guides(
     fill = guide_colorbar(barwidth = unit(0.25, "cm"))
@@ -159,6 +178,7 @@ p <- bb2 %>%
 ggsave(
   "graphs/fig01.pdf",
   device = cairo_pdf,
-  width = 8.96,
-  height = 7.29
+  width = 8,
+  height = 8 / 1.229081
 )
+

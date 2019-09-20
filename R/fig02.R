@@ -75,7 +75,7 @@ stations <-
 
 p <- shapes2 %>%
   ggplot() +
-  geom_sf(data = wm, size = 0.1,fill = "gray95") +
+  geom_sf(data = wm, size = 0.1,fill = "white") +
   geom_sf(aes(fill = date), alpha = 0.5, color = NA) +
   # geom_sf(data = track, color = "red") +
   coord_sf(xlim = c(-70, -45), ylim = c(65, 72)) +
@@ -139,11 +139,16 @@ p <- shapes2 %>%
     legend.title = element_blank(),
     legend.justification = c(1, 0),
     legend.position = c(0.98, 0.01),
-    legend.background = element_rect(fill = "gray95"),
-    legend.key = element_rect(fill = "gray95"),
+    legend.background = element_rect(fill = "white"),
+    legend.key = element_rect(fill = "white"),
     panel.grid = element_blank()
     # ,
     # panel.background = element_rect(fill = "#a8dbd9")
   )
 
-ggsave("graphs/fig02.pdf", device = cairo_pdf, width = 8.96, height = 7.29)
+ggsave(
+  "graphs/fig02.pdf",
+  device = cairo_pdf,
+  width = 8,
+  height = 8 / 1.229081
+)
