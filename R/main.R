@@ -24,8 +24,11 @@ library(ggspatial)
 library(rnaturalearth)
 library(patchwork)
 library(ggforce)
+library(scales)
+library(tidync)
+library(ggquiver)
 
-plan(multiprocess(workers = availableCores() - 1))
+plan(multisession(workers = availableCores() - 1))
 
 ## Set default ggplot2 font size and font family
 theme_set(theme_poppins(base_size = 10))
