@@ -1,10 +1,10 @@
 rm(list = ls())
 
 track <- st_read("../green_edge/data/doc.kml", layer = "Tracks")
-sampling_dates <- read_csv("/media/data4tb/greenedge/greenedge_log_clean.csv")
+sampling_dates <- read_csv("greenedge_log_clean.csv")
 
 stations <-
-  read_csv("/media/data4tb/greenedge/greenedge_stations_clean.csv") %>%
+  read_csv("data/clean/greenedge_stations_clean.csv") %>%
   distinct(station, longitude, latitude, .keep_all = TRUE) %>%
   filter(str_starts(station, "G")) %>%
   mutate(station_type = case_when(
@@ -91,7 +91,6 @@ shapes2 <- shapes %>%
   mutate(date = as.Date(date)) %>%
   inner_join(stations2, by = c("date" = "median_date"))
 
-
 # Plot --------------------------------------------------------------------
 
 # shapes3 <- shapes2 %>%
@@ -117,8 +116,15 @@ p <- bb2 %>%
   mutate(xyz.est.z = ifelse(xyz.est.z >= 0, 0, xyz.est.z)) %>%
   ggplot(aes(xyz.est.x, xyz.est.y, fill = xyz.est.z, z = xyz.est.z)) +
   ggisoband::geom_isobands(bins = 25, color = NA) +
-  paletteer::scale_fill_paletteer_c(ggthemes, Blue, direction = -1, limits = c(-2500, 0), oob = scales::squish, guide = "legend", breaks = -c(0, 1000, 2000, 3000)) +
-  paletteer::scale_color_paletteer_d(RColorBrewer, Set1) +
+  paletteer::scale_fill_paletteer_c(
+    "ggthemes::Blue",
+    direction = -1,
+    limits = c(-2500, 0),
+    oob = scales::squish,
+    guide = "legend",
+    breaks = -c(0, 1000, 2000, 3000)
+  ) +
+  paletteer::scale_color_paletteer_d("RColorBrewer::Set1") +
   geom_sf(
     data = wm,
     size = 0.1,
@@ -131,7 +137,13 @@ p <- bb2 %>%
   #   inherit.aes = FALSE,
   #   fill = "red"
   # ) +
-  geom_sf(data = shapes2, aes(color = transect), show.legend = FALSE, size = 0.1, inherit.aes = FALSE) +
+  geom_sf(
+    data = shapes2,
+    aes(color = transect),
+    show.legend = FALSE,
+    size = 0.1,
+    inherit.aes = FALSE
+  ) +
   coord_sf(xlim = c(-70.5, -43), ylim = c(65, 72)) +
   annotate(
     geom = "text",
@@ -185,7 +197,12 @@ p <- bb2 %>%
   ) +
   geom_point(
     data = stations,
-    aes(x = longitude, y = latitude, shape = station_type, color = transect),
+    aes(
+      x = longitude,
+      y = latitude,
+      shape = station_type,
+      color = transect
+    ),
     size = 0.5,
     inherit.aes = FALSE
   ) +
@@ -210,11 +227,20 @@ p <- bb2 %>%
     color = "Transect"
   ) +
   guides(
-    fill = guide_colorbar(barwidth = unit(2, "cm"), barheight = unit(0.1, "cm"), direction = "horizontal", title.position = "top"),
+    fill = guide_colorbar(
+      barwidth = unit(2, "cm"),
+      barheight = unit(0.1, "cm"),
+      direction = "horizontal",
+      title.position = "top"
+    ),
     color = guide_legend(ncol = 2, override.aes = list(size = 1)),
     shape = guide_legend(ncol = 2, override.aes = list(size = 1))
   ) +
-  annotate("point", x = -63.78953333, y = 67.47973333, size = 0.5)
+  annotate("point",
+    x = -63.78953333,
+    y = 67.47973333,
+    size = 0.5
+  )
 
 ggsave(
   "graphs/fig_map.pdf",

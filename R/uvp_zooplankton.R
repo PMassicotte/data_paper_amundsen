@@ -30,6 +30,50 @@ uvp_cleaned <- uvp %>%
 
 uvp_cleaned
 
+uvp_cleaned_copepoda <- uvp_cleaned %>%
+  filter_at(vars(starts_with("taxon")), any_vars(str_detect(., "copepoda")))
+
+# Fig on copepoda abundance -----------------------------------------------
+
+uvp_cleaned_copepoda_total <- uvp_cleaned_copepoda %>%
+  group_by(station, depth_m) %>%
+  summarise(total_biovolume_ppm = sum(biovolume_ppm, na.rm = TRUE)) %>%
+  ungroup()
+
+owd <- read_csv(pins::pin("https://raw.githubusercontent.com/poplarShift/ice-edge/master/nb_data/FIGURE_5.csv")) %>%
+  janitor::clean_names() %>%
+  select(station, owd)
+
+uvp_cleaned_copepoda_total <- left_join(uvp_cleaned_copepoda_total, owd, by = "station") %>%
+  mutate(station_status = ifelse(owd >= 0, "Open water stations", "Underice stations"))
+
+uvp_cleaned_copepoda_total %>%
+  group_by(depth_m, station_status) %>%
+  summarise(average_copepoda_ppm = mean(total_biovolume_ppm)) %>%
+  arrange(depth_m) %>%
+  filter(depth_m <= 350) %>%
+  ggplot(aes(y = average_copepoda_ppm, x = depth_m)) +
+  geom_area() +
+  coord_flip() +
+  scale_x_reverse(expand = c(0, 0), breaks = seq(0, 350, by = 50)) +
+  scale_y_continuous(expand = expand_scale(mult = c(0, 0.01)), breaks = scales::pretty_breaks(4)) +
+  facet_wrap(~station_status, ncol = 1) +
+  xlab("Depth (m)") +
+  ylab(bquote("Average biovolume of copepoda (ppm)")) +
+  theme(
+    legend.position = "none",
+    panel.spacing = unit(1, "lines")
+  )
+
+ggsave(
+  "graphs/fig_uvp_copepoda.pdf",
+  device = cairo_pdf,
+  width = 8.3,
+  height = 8.3 * 1.6,
+  units = "cm"
+)
+
+
 # Complete the data -------------------------------------------------------
 
 # Here, when a taxon is not identified (NA), I append it with ("unidentified")

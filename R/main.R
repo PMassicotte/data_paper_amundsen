@@ -27,6 +27,8 @@ library(ggforce)
 library(scales)
 library(tidync)
 library(ggquiver)
+library(ggalt)
+library(stars)
 
 plan(multisession(workers = availableCores() - 1))
 

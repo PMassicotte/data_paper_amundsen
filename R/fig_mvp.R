@@ -54,6 +54,20 @@ mvp %>%
   geom_point() +
   paletteer::scale_color_paletteer_d(rcartocolor, Vivid)
 
+
+# Quick look raw data -----------------------------------------------------
+
+# Looks like the Amundsen figures are way too smoothed
+mvp %>%
+  filter(transect == 200) %>%
+  ggplot(aes(x = initial_longitude_deg, y = pres, color = fluo)) +
+  scale_y_reverse(expand = c(0, 0)) +
+  scale_x_continuous(expand = c(0, 0)) +
+  scale_color_gradientn(
+    colours = color) +
+  facet_wrap(~transect, scales = "free_x", ncol = 1) +
+  geom_point()
+
 # Interpolate -------------------------------------------------------------
 
 mvp <- mvp %>%

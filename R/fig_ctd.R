@@ -42,7 +42,7 @@ p1 <- df %>%
   ggplot(aes(x = longitude, y = depth_m, fill = te90_degrees_c, z = te90_degrees_c)) +
   # geom_raster() +
   scale_y_reverse(expand = c(0, 0)) +
-  scale_x_continuous(expand = c(0, 0)) +
+  scale_x_continuous(expand = c(0, 0), labels = function(x) paste0(-x, "°W")) +
   scale_fill_gradientn(colours = color, guide = guide_colorbar(title.position = "top", nrow = 1)) +
   geom_isobands(bins = 50, color = NA) +
   facet_wrap(~transect, scales = "free_x", ncol = 1) +
@@ -61,7 +61,7 @@ p2 <- df %>%
   ggplot(aes(x = longitude, y = depth_m, fill = asal_g_kg, z = asal_g_kg)) +
   # geom_raster() +
   scale_y_reverse(expand = c(0, 0)) +
-  scale_x_continuous(expand = c(0, 0)) +
+  scale_x_continuous(expand = c(0, 0), labels = function(x) paste0(-x, "°W")) +
   scale_fill_gradientn(colours = color,
     limits = c(33, 34.75),
     oob = scales::squish,
@@ -85,7 +85,7 @@ p3 <- df %>%
   ggplot(aes(x = longitude, y = depth_m, fill = flor_mg_m3, z = flor_mg_m3)) +
   # geom_raster() +
   scale_y_reverse(expand = c(0, 0)) +
-  scale_x_continuous(expand = c(0, 0)) +
+  scale_x_continuous(expand = c(0, 0), labels = function(x) paste0(-x, "°W")) +
   scale_fill_gradientn(colours = color,
     limits = c(0, 8),
     oob = scales::squish,
@@ -106,7 +106,7 @@ p3 <- df %>%
 p4 <- df %>%
   ggplot(aes(x = longitude, y = depth_m, fill = tran_percent, z = tran_percent)) +
   scale_y_reverse(expand = c(0, 0)) +
-  scale_x_continuous(expand = c(0, 0)) +
+  scale_x_continuous(expand = c(0, 0), labels = function(x) paste0(-x, "°W")) +
   geom_isobands(bins = 100, color = NA) +
   scale_fill_gradientn(colours = color,
     limits = c(85, NA),
