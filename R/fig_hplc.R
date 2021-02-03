@@ -38,27 +38,9 @@ hplc_viz <- hplc %>%
   pivot_wider(names_from = pigment, values_from = conc_mg_m3) %>%
   janitor::clean_names()
 
-
 # Plot --------------------------------------------------------------------
 
 hplc_viz
-
-# p1 <- hplc_viz %>%
-#   drop_na(zeaxanthin) %>%
-#   ggplot(aes(x = longitude, y = depth_m, fill = zeaxanthin, z = zeaxanthin)) +
-#   scale_y_reverse(expand = c(0, 0)) +
-#   scale_x_continuous(expand = c(0, 0), labels = function(x) paste0(-x, "°W"), breaks = scales::pretty_breaks(n = 3)) +
-#   scale_fill_gradientn(colours = color, guide = guide_colorbar(title.position = "top", nrow = 1)) +
-#   geom_isobands(color = NA, bins = 100) +
-#   facet_wrap(~transect, nrow = 1, strip.position = "top") +
-#   theme(
-#     panel.spacing = unit(1, "lines"),
-#     plot.title = element_text(vjust = -18),
-#     legend.margin = margin(0, 0, 0, 0),
-#     legend.box.margin = margin(0, 0, 30, 0)
-#   ) +
-#   ylab("Depth (m)") +
-#   xlab("Longitude")
 
 p1 <- hplc_viz %>%
   drop_na(total_chlorophyll_a) %>%
@@ -120,44 +102,48 @@ p2 <- hplc_viz %>%
 # Zooplankton -------------------------------------------------------------
 
 zoo <- readxl::read_excel(
-  "data/raw/GE_Amundsen_zooplankton_vtow200um (1).xlsx",
+  "data/raw/zooplankton_condensed_GE.xlsx",
   sheet = 1
 ) %>%
   janitor::clean_names() %>%
   mutate(station = parse_number(station_name), .after = station_name) %>%
   select(
     station,
-    depth_m = station_depth_m,
-    date = sampling_date,
-    type,
-    abund_ind_m2
+    contains("m3")
   ) %>%
   mutate(transect = station %/% 100 * 100, .after = station) %>%
-  filter(transect %in% c(300, 500))
-
+  filter(transect %in% c(300, 500)) %>%
+  pivot_longer(contains("m3"))
 
 zoo
 
+zoo <- zoo %>%
+  mutate(zoo_type = case_when(
+    str_detect(name, "^copepode") ~ "Copepode",
+    str_detect(name, "^non_copepode") ~ "Non-Copepode"
+  ))
+
 p3 <- zoo %>%
-  ggplot(aes(x = abund_ind_m2)) +
-  geom_histogram(bins = 40) +
-  facet_grid(type~transect) +
-  scale_x_log10() +
-  annotation_logticks(sides = "b") +
+  ggplot(aes(x = factor(station), y = value, fill = zoo_type)) +
+  geom_col(position = "dodge") +
+  facet_wrap(~transect, scales = "free_x") +
   labs(
-    x = quote("Abundance" ~ (ind~m^{-2})),
-    y = "Count"
+    y = quote("Abundance" ~ (ind~m^{-3})),
+    x = "Stations"
+  ) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.02))) +
+  labs(
+    fill = element_blank()
+  ) +
+  theme(
+    legend.position = "bottom"
   )
 
 # Combine plots -----------------------------------------------------------
 
-
-#
-# p <- p1 + p2 + p3 + p4 +
-#   plot_layout(ncol = 1)
-
 p <- p1 / p2 / p3 +
-  plot_layout(heights = c(0.25, 0.25, 0.5))
+  plot_layout(heights = c(0.25, 0.25, 0.5)) +
+  plot_annotation(tag_levels = "A")
 
 ggsave(
   "graphs/fig_hplc.pdf",
