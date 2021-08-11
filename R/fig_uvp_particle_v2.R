@@ -9,7 +9,7 @@
 
 rm(list = ls())
 
-uvp <- vroom::vroom("/media/data4tb/greenedge/clean/uvp/greenedge_uvp_particles.csv") %>%
+uvp <- vroom::vroom("data/raw/greenedge_uvp_particles.gz") %>%
   filter(mission == "amundsen_2016") %>%
   filter(str_detect(site, "^g\\d{3}")) %>%
   mutate(station = parse_number(site)) %>%
@@ -42,7 +42,6 @@ uvp <- uvp %>%
   mutate(particle_median_size_mm = (particle_max_size_mm + particle_min_size_mm) / 2) %>%
   select(station, transect, longitude, latitude, depth_m, contains("size"), count_per_liter)
 
-
 # Calculate the total number of particles at eatch station/depth ----------
 
 uvp <- uvp %>%
@@ -57,7 +56,7 @@ owd <- read_csv(pins::pin("https://raw.githubusercontent.com/poplarShift/ice-edg
   select(station, owd)
 
 uvp <- left_join(uvp, owd, by = "station") %>%
-  mutate(station_status = ifelse(owd >= 0, "Open water\nstations", "Underice\nstations"))
+  mutate(station_status = ifelse(owd >= 0, "Open water stations", "Underice stations"))
 
 # Visualize ---------------------------------------------------------------
 
@@ -70,9 +69,9 @@ p <- uvp %>%
   geom_area() +
   coord_flip() +
   scale_x_reverse(expand = c(0, 0), breaks = seq(0, 350, by = 50)) +
-  scale_y_continuous(expand = expand_scale(mult = c(0, 0.2)), breaks = scales::pretty_breaks(3)) +
+  scale_y_continuous(expand = expand_scale(mult = c(0, 0.02)), breaks = scales::pretty_breaks(3)) +
   facet_wrap(~station_status, ncol = 1) +
-  paletteer::scale_color_paletteer_d(ggthemes, wsj_rgby) +
+  paletteer::scale_color_paletteer_d("ggthemes::wsj_rgby") +
   xlab("Depth (m)") +
   ylab(bquote("Average particle count (per mL)")) +
   theme(
@@ -81,9 +80,9 @@ p <- uvp %>%
   )
 
 ggsave(
-  "graphs/fig_uvp_particles_v2.pdf",
-  device = cairo_pdf,
-  width = 8.3,
-  height = 8.3 * 1.6,
+  "graphs/fig_uvp_particles_v2.png",
+  dpi = 600,
+  width = 10,
+  height = 14,
   units = "cm"
 )

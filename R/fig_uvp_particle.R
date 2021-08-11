@@ -8,7 +8,7 @@
 
 rm(list = ls())
 
-uvp <- vroom::vroom("/media/data4tb/greenedge/clean/uvp/greenedge_uvp_particles.csv") %>%
+uvp <- vroom::vroom("data/raw/greenedge_uvp_particles.gz") %>%
   filter(mission == "amundsen_2016") %>%
   filter(str_detect(site, "^g\\d{3}")) %>%
   mutate(station = parse_number(site)) %>%
@@ -41,7 +41,6 @@ uvp <- uvp %>%
   mutate(particle_median_size_mm = (particle_max_size_mm + particle_min_size_mm) / 2) %>%
   select(station, transect, longitude, latitude, depth_m, contains("size"), count_per_liter)
 
-
 # Select the most abundant particle class size ----------------------------
 
 uvp <- uvp %>%
@@ -58,7 +57,7 @@ owd <- read_csv(pins::pin("https://raw.githubusercontent.com/poplarShift/ice-edg
   select(station, owd)
 
 uvp <- left_join(uvp, owd, by = "station") %>%
-  mutate(station_status = ifelse(owd >= 0, "Open water\nstations", "Underice\nstations"))
+  mutate(station_status = ifelse(owd >= 0, "Open water stations", "Underice stations"))
 
 # Visualize ---------------------------------------------------------------
 
@@ -73,7 +72,7 @@ p <- uvp %>%
   scale_x_reverse(expand = c(0, 0), breaks = seq(0, 350, by = 50)) +
   scale_y_continuous(expand = expand_scale(mult = c(0, 0.2)), breaks = scales::pretty_breaks(3)) +
   facet_grid(station_status~particle_size_range, scales = "free") +
-  paletteer::scale_fill_paletteer_d(ggthemes, wsj_rgby) +
+  paletteer::scale_fill_paletteer_d("ggthemes::wsj_rgby") +
   xlab("Depth (m)") +
   ylab(bquote("Average particle count (per mL)")) +
   theme(

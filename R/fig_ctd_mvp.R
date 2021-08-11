@@ -60,7 +60,7 @@ ctd <- ctd %>%
 
 # MVP ---------------------------------------------------------------------
 
-mvp <- vroom::vroom("data/clean/greenedge_mvp.csv", altrep_opts = TRUE) %>%
+mvp <- vroom::vroom("data/clean/greenedge_mvp.csv", altrep = TRUE) %>%
   mutate(initial_longitude_deg = -initial_longitude_deg) %>%
   filter(pres <= 200)
 
@@ -457,3 +457,9 @@ ggsave(
 )
 
 knitr::plot_crop("graphs/fig_ctd_mvp.pdf")
+
+pdftools::pdf_convert(
+  pdf = "graphs/fig_ctd_mvp.pdf",
+  filenames = "graphs/fig_ctd_mvp.png",
+  dpi = 600
+)

@@ -54,7 +54,7 @@ p1 <- dow %>%
   ) +
   coord_sf(xlim = c(-68, -52), ylim = c(67, 71)) +
   labs(
-    color = "Days of\nopen water"
+    color = "Open\nWater\nDays"
   ) +
   theme(
     axis.title = element_blank(),
@@ -63,10 +63,18 @@ p1 <- dow %>%
 
 ggsave(
   "graphs/fig_dow.pdf",
-  device = cairo_pdf
+  device = cairo_pdf,
+  width = 4,
+  height = 8
 )
 
 knitr::plot_crop("graphs/fig_dow.pdf")
+
+pdftools::pdf_convert(
+  pdf = "graphs/fig_dow.pdf",
+  filenames = "graphs/fig_dow.png",
+  dpi = 600
+)
 
 # bbox of Baffin ----------------------------------------------------------
 
@@ -104,7 +112,7 @@ walk(
   ))
 )
 
-# Unzip sea ice contentration files
+# Unzip sea ice concentration files
 files <- fs::dir_ls("data/raw/sea_ice_extent/", glob = "*.zip")
 walk(files, ~unzip(., exdir = dirname(.)))
 
@@ -120,19 +128,55 @@ sic <- sic %>%
   st_transform(crs = st_crs(baffin)) %>%
   st_crop(st_bbox(baffin))
 
+# Shiptrack ---------------------------------------------------------------
+
+track <- read_csv("data/raw/greenedge_navigation_15min.csv") %>%
+  mutate(date = as.Date(date)) %>%
+  crossing(sic_date = unique(sic$date)) %>%
+  group_nest(sic_date) %>%
+  mutate(track = map2(data, sic_date, ~ filter(
+    ., between(.$date, .y - lubridate::days(3), .y + lubridate::days(3))
+  ))) %>%
+  select(-data) %>%
+  unnest(track) %>%
+  select(-date) %>%
+  rename(date = sic_date) %>%
+  arrange(date) %>%
+  mutate(date = format(date, "%B %d, %Y")) %>%
+  mutate(date = fct_inorder(date))
+
+track %>%
+  ggplot(aes(x = longitude, y = latitude)) +
+  geom_path() +
+  facet_wrap( ~ date)
+
 # Plot sea ice extent -----------------------------------------------------
 
 p2 <- sic %>%
+  arrange(date) %>%
+  mutate(date = format(date, "%B %d, %Y")) %>%
+  mutate(date = fct_inorder(date)) %>%
   ggplot() +
   geom_sf(fill = "white", size = 0.1) +
   geom_sf(data = wm, size = 0.1, fill = "gray75") +
-  facet_wrap(~date) +
-  coord_sf(crs = 4326, xlim = c(-70.5, -43), ylim = c(65, 72)) +
+  facet_wrap(~ date) +
+  coord_sf(
+    crs = 4326,
+    xlim = c(-70.5, -43),
+    ylim = c(65, 72)
+  ) +
+  geom_path(
+    data = track,
+    aes(x = longitude, y = latitude),
+    size = 0.25,
+    inherit.aes = FALSE
+  ) +
   theme(
     axis.ticks = element_blank(),
     axis.title = element_blank(),
     panel.grid = element_blank(),
-    panel.background = element_rect(fill = "#2171B5")
+    panel.background = element_rect(fill = "#2171B5"),
+    panel.border = element_blank()
   )
 
 ggsave(
@@ -143,3 +187,9 @@ ggsave(
 )
 
 knitr::plot_crop("graphs/fig_sea_ice_extent.pdf")
+
+pdftools::pdf_convert(
+  pdf = "graphs/fig_sea_ice_extent.pdf",
+  filenames = "graphs/fig_sea_ice_extent.png",
+  dpi = 600
+)

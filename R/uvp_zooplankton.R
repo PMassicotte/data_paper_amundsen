@@ -8,7 +8,7 @@
 
 rm(list = ls())
 
-uvp <- vroom::vroom("/media/data4tb/greenedge/clean/uvp/greenedge_uvp_zooplankton.csv") %>%
+uvp <- vroom::vroom("data/raw/greenedge_uvp_zooplankton.gz") %>%
   filter(mission == "amundsen_2016") %>%
   filter(str_detect(site, "^g\\d{3}")) %>%
   mutate(station = parse_number(site)) %>%
@@ -56,23 +56,22 @@ uvp_cleaned_copepoda_total %>%
   geom_area() +
   coord_flip() +
   scale_x_reverse(expand = c(0, 0), breaks = seq(0, 350, by = 50)) +
-  scale_y_continuous(expand = expand_scale(mult = c(0, 0.01)), breaks = scales::pretty_breaks(4)) +
+  scale_y_continuous(expand = expansion(mult = c(0, 0.02)), breaks = scales::pretty_breaks(4)) +
   facet_wrap(~station_status, ncol = 1) +
   xlab("Depth (m)") +
-  ylab(bquote("Average biovolume of copepoda (ppm)")) +
+  ylab(quote("Average biovolume of copepoda"~(cm^{-3}~m^{-3}))) +
   theme(
     legend.position = "none",
     panel.spacing = unit(1, "lines")
   )
 
 ggsave(
-  "graphs/fig_uvp_copepoda.pdf",
-  device = cairo_pdf,
-  width = 8.3,
-  height = 8.3 * 1.6,
+  "graphs/fig_uvp_copepoda.png",
+  dpi = 600,
+  width = 10,
+  height = 14,
   units = "cm"
 )
-
 
 # Complete the data -------------------------------------------------------
 
@@ -158,7 +157,7 @@ uvp_cleaned_viz %>%
   scale_x_reverse(expand = c(0, 0), breaks = seq(0, 350, by = 50)) +
   scale_y_log10(expand = expand_scale(mult = c(0, 0.2))) +
   facet_grid(station_status~taxon, scales = "free") +
-  paletteer::scale_fill_paletteer_d(ggthemes, wsj_rgby) +
+  paletteer::scale_fill_paletteer_d("ggthemes::wsj_rgby") +
   xlab("Depth (m)") +
   ylab("Average biovolume (ppm)") +
   theme(

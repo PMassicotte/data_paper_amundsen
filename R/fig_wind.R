@@ -40,7 +40,8 @@ p <- df %>%
     v = v10
   ),
   size = 0.25,
-  show.legend = TRUE) +
+  show.legend = TRUE
+  ) +
   facet_wrap(~time) +
   coord_cartesian(xlim = c(-70.5, -43), ylim = c(65, 72)) +
   rcartocolor::scale_color_carto_c(
@@ -49,16 +50,29 @@ p <- df %>%
       direction = "horizontal",
       keyheight = unit(5, units = "mm"),
       keywidth = unit(8, units = "mm"),
-      title.position = 'top',
+      title.position = "top",
       title.hjust = 0.5,
       nrow = 1,
       byrow = TRUE,
       label.position = "bottom",
-      title = bquote("Wind speed" ~ (m ~ s^{-1})),
-      override.aes = list(size = 2))
+      title = bquote("Wind speed" ~ (m ~ s^{
+        -1
+      })),
+      override.aes = list(size = 2)
+    )
   ) +
-  scale_x_continuous(labels = function(x) paste0(-x, "°W"), breaks = scales::pretty_breaks(n = 5)) +
-  scale_y_continuous(labels = function(x) paste0(x, "°N"), breaks = scales::pretty_breaks(n = 5)) +
+  scale_x_continuous(
+    labels = function(x) {
+      paste0(-x, "°W")
+    },
+    breaks = scales::pretty_breaks(n = 5)
+  ) +
+  scale_y_continuous(
+    labels = function(x) {
+      paste0(x, "°N")
+    },
+    breaks = scales::pretty_breaks(n = 5)
+  ) +
   facet_wrap(~month, ncol = 1) +
   theme(
     axis.title = element_blank(),
@@ -67,9 +81,10 @@ p <- df %>%
   )
 
 ggsave(
-  "graphs/fig_wind.pdf",
-  device = cairo_pdf,
+  "graphs/fig_wind.png",
+  dpi = 600,
   width = 8.3,
   height = 8.3 / 0.6,
   units = "cm"
 )
+
