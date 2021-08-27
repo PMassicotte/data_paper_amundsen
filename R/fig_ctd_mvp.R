@@ -401,6 +401,8 @@ extract_sic <- function(date, transect, longitude, latitude) {
 sic <- stations %>%
   future_pmap_dfr(~extract_sic(..1, ..4, ..3, ..2), .progress = TRUE)
 
+write_csv(sic, "data/clean/sic_transects_300_500.csv")
+
 # Final plot --------------------------------------------------------------
 
 p_sic_t300 <- sic %>%
