@@ -31,6 +31,8 @@ library(ggquiver)
 library(ggalt)
 library(stars)
 
+sf_use_s2(FALSE)
+
 plan(multisession(workers = availableCores() - 1))
 
 ## Set default ggplot2 font size and font family

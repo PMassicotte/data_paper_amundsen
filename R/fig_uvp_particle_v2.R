@@ -73,7 +73,7 @@ p <- uvp %>%
   facet_wrap(~station_status, ncol = 1) +
   paletteer::scale_color_paletteer_d("ggthemes::wsj_rgby") +
   xlab("Depth (m)") +
-  ylab(bquote("Average particle count (per mL)")) +
+  ylab(quote("Average particle count" ~ (ml^{-1}))) +
   theme(
     legend.position = "none",
     panel.spacing = unit(1, "lines")

@@ -332,7 +332,7 @@ stations <-
   mutate(transect = as.factor(transect)) %>%
   drop_na(date)
 
-# combine -----------------------------------------------------------------
+# Float -------------------------------------------------------------------
 
 p2 <- float %>%
   drop_na(date) %>%
@@ -429,16 +429,52 @@ p2 <- float %>%
     legend.margin = margin(t = 0, unit = "cm")
   )
 
-# Combine2 ----------------------------------------------------------------
+
+# Inset -------------------------------------------------------------------
+
+bbox <- c(xmin = -180, xmax = 0, ymin = 30, ymax = 90)
+
+canada <- rnaturalearth::ne_countries(returnclass = "sf", scale = "large") %>%
+  st_crop(bbox)
+
+# crsuggest::suggest_crs(canada)
+
+bbox_nsidc <- canada %>%
+  st_bbox() %>%
+  st_as_sfc() %>%
+  st_transform(3979) %>%
+  st_bbox()
+
+map_bbox <- st_bbox(c(xmin = -70.5, xmax = -43, ymin = 65, ymax = 72), crs = 4326) %>%
+  st_as_sfc() %>%
+  st_transform(3979)
+
+p3 <- canada %>%
+  ggplot() +
+  geom_sf(size = 0.1) +
+  geom_sf(data = map_bbox, fill = NA, color = "red", size = 0.5) +
+  coord_sf(crs = 3979, xlim = c(-2000000, 2500000), ylim = c(4000000, 10)) +
+  theme(
+    text = element_text(size = 6)
+  )
+
+# Combine -----------------------------------------------------------------
+
+p2 <- p2 +
+  annotation_custom(ggplotGrob(p3), xmin = -55, xmax = -40, ymin = 65, ymax = 68)
 
 p <- p1 / p2 +
   plot_annotation(tag_levels = "A")
 
+filename <- "graphs/fig01.pdf"
+
 ggsave(
-  "graphs/fig01.pdf",
+  filename,
   device = cairo_pdf,
   height = 8,
   width = 6
 )
 
-knitr::plot_crop("graphs/fig01.pdf")
+knitr::plot_crop(filename)
+
+pdftools::pdf_convert(filename, format = "png", filenames = "graphs/fig01.png", dpi = 300)

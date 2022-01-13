@@ -166,8 +166,8 @@ zoo
 
 zoo <- zoo %>%
   mutate(zoo_type = case_when(
-    str_detect(name, "^copepode") ~ "Copepode",
-    str_detect(name, "^non_copepode") ~ "Non-Copepode"
+    str_detect(name, "^copepode") ~ "Copepods",
+    str_detect(name, "^non_copepode") ~ "Non-Copepods"
   ))
 
 p3 <- zoo %>%
