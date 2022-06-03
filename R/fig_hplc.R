@@ -2,7 +2,6 @@ rm(list = ls())
 
 source("R/utils.R")
 
-
 # CTD ---------------------------------------------------------------------
 
 hplc <- vroom::vroom("data/clean/greenedge_pigments.csv", delim = ",") %>%
@@ -71,7 +70,6 @@ p1 <- hplc_viz %>%
     guide = guide_colorbar(
       title.position = "top",
       nrow = 1,
-      barwidth = unit(10, "cm"),
       title.hjust = 0.5
     )
   ) +
@@ -80,7 +78,7 @@ p1 <- hplc_viz %>%
   theme(
     panel.spacing = unit(1, "lines"),
     plot.title = element_text(vjust = -18),
-    legend.position = "bottom",
+    legend.position = "right",
     legend.margin = margin(0, 0, 0, 0),
     legend.box.margin = margin(0, 0, 30, 0),
     strip.text = element_blank()
@@ -109,42 +107,23 @@ p2 <- hplc_viz %>%
     colours = color,
     guide = guide_colorbar(
       title.position = "top",
-      nrow = 1,
-      barwidth = unit(10, "cm"),
-      title.hjust = 0.5
+      nrow = 1
     )
   ) +
   geom_isobands(color = NA, bins = 100) +
   facet_wrap(~transect, nrow = 1, strip.position = "top") +
   theme(
     panel.spacing = unit(1, "lines"),
-    plot.title = element_text(vjust = -18),
+    # plot.title = element_text(hjust = 1),
     legend.margin = margin(0, 0, 0, 0),
-    legend.position = "bottom",
+    legend.position = "right",
     legend.box.margin = margin(0, 0, 30, 0),
-    strip.text = element_blank()
+    strip.text = element_blank(),
+    legend.title.align = 0
   ) +
   ylab("Depth (m)") +
   xlab("Longitude") +
-  labs(fill = bquote("Total phaeophorbid concentration" ~ (mg ~ m^{-3})))
-
-# p3 <- hplc_viz %>%
-#   drop_na(diadinoxanthin_diatoxanthin) %>%
-#   ggplot(aes(x = longitude, y = depth_m, fill = diadinoxanthin_diatoxanthin, z = diadinoxanthin_diatoxanthin)) +
-#   scale_y_reverse(expand = c(0, 0)) +
-#   scale_x_continuous(expand = c(0, 0), labels = function(x) paste0(-x, "°W"), breaks = scales::pretty_breaks(n = 3)) +
-#   scale_fill_gradientn(colours = color, guide = guide_colorbar(title.position = "top", nrow = 1)) +
-#   geom_isobands(color = NA, bins = 100) +
-#   facet_wrap(~transect, nrow = 1, strip.position = "top") +
-#   theme(
-#     panel.spacing = unit(1, "lines"),
-#     plot.title = element_text(vjust = -18),
-#     legend.margin = margin(0, 0, 0, 0),
-#     legend.box.margin = margin(0, 0, 30, 0)
-#   ) +
-#   ylab("Depth (m)") +
-#   xlab("Longitude")
-
+  labs(fill = quote(atop("Total\nphaeophorbid\nconcentration", (mg ~ m^{-3}))))
 
 # Zooplankton -------------------------------------------------------------
 
@@ -183,7 +162,7 @@ p3 <- zoo %>%
     fill = element_blank()
   ) +
   theme(
-    legend.position = "bottom",
+    legend.position = "right",
     strip.text = element_blank()
   )
 

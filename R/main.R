@@ -8,13 +8,15 @@
 
 # Setup -------------------------------------------------------------------
 
-library(raster)
-library(tidyverse)
-
 # renv::install("MilesMcBain/breakerofchains")
 # renv::install("PMassicotte/ggpmthemes")
-library(ggpmthemes)
+# renv::install("mcguinlu/pathformatr")
+# renv::install("ropensci/rnaturalearthdata")
+# renv::install("ropensci/rnaturalearthhires")
 
+library(raster)
+library(tidyverse)
+library(ggpmthemes)
 library(MBA)
 library(ggisoband)
 library(sf)

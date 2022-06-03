@@ -135,7 +135,7 @@ p1 <- bb2 %>%
     label = "Qikiqtarjuaq",
     vjust = -0.25,
     hjust = 0,
-    size = 2,
+    size = 3,
     family = "Poppins"
   ) +
   annotate(
@@ -176,7 +176,7 @@ p1 <- bb2 %>%
     width_hint = 0.08,
     height = unit(0.1, "cm"),
     line_width = 0.1,
-    text_cex = 0.5
+    text_cex = 0.75
   ) +
   geom_point(
     data = stations,
@@ -198,8 +198,8 @@ p1 <- bb2 %>%
     panel.background = element_rect(fill = "#B9DDF1"),
     legend.key = element_rect(fill = "white"),
     panel.grid = element_blank(),
-    legend.text = element_text(size = 6),
-    legend.title = element_text(size = 7),
+    legend.text = element_text(size = 7),
+    legend.title = element_text(size = 8),
     legend.key.size = unit(0.25, "cm"),
     legend.margin = margin(t = 0, unit = "cm")
     # legend.direction = "vertical", legend.box = "horizontal"
@@ -238,7 +238,6 @@ tmpfile <- future_map(files, function(x) {
 
   return(tmpfile)
 })
-
 
 float <- future_map_dfr(tmpfile, read_csv) %>%
   janitor::clean_names() %>%
@@ -362,7 +361,7 @@ p2 <- float %>%
   geom_point(aes(
     x = longitude,
     y = latitude,
-    color = glue("{float} ({as.numeric(deployment_duration, units = 'days')} days)")
+    color = glue("{float}")
   ),
   size = 0.5
   ) +
@@ -370,7 +369,7 @@ p2 <- float %>%
     l = 70, c = 30,
     guide_legend(title = "Float name", order = 3, override.aes = list(size = 1))
   ) +
-  coord_sf(xlim = c(-70.5, -43), ylim = c(65, 72)) +
+  coord_sf(xlim = c(-70.5, -43), ylim = c(67.2, 71.5)) +
   geom_path(
     data = stations,
     aes(x = longitude, y = latitude, group = transect),
@@ -401,7 +400,7 @@ p2 <- float %>%
     label = "Qikiqtarjuaq",
     vjust = -0.25,
     hjust = 0,
-    size = 2,
+    size = 3,
     family = "Poppins"
   ) +
   annotate("point",
@@ -414,7 +413,7 @@ p2 <- float %>%
     width_hint = 0.08,
     height = unit(0.1, "cm"),
     line_width = 0.1,
-    text_cex = 0.5
+    text_cex = 0.75
   ) +
   theme(
     legend.justification = c(1, 1),
@@ -423,12 +422,11 @@ p2 <- float %>%
     panel.background = element_rect(fill = "#B9DDF1"),
     legend.key = element_rect(fill = "white"),
     panel.grid = element_blank(),
-    legend.text = element_text(size = 6),
-    legend.title = element_text(size = 7),
+    legend.text = element_text(size = 7),
+    legend.title = element_text(size = 8),
     legend.key.size = unit(0.25, "cm"),
     legend.margin = margin(t = 0, unit = "cm")
   )
-
 
 # Inset -------------------------------------------------------------------
 
@@ -460,10 +458,10 @@ p3 <- canada %>%
 
 # Combine -----------------------------------------------------------------
 
-p2 <- p2 +
-  annotation_custom(ggplotGrob(p3), xmin = -55, xmax = -40, ymin = 65, ymax = 68)
+p4 <- p2 +
+  annotation_custom(ggplotGrob(p3), xmin = -52, xmax = -40, ymin = 67, ymax = 69.45)
 
-p <- p1 / p2 +
+p <- p1 / p4 +
   plot_annotation(tag_levels = "A")
 
 filename <- "graphs/fig01.pdf"
@@ -477,4 +475,8 @@ ggsave(
 
 knitr::plot_crop(filename)
 
-pdftools::pdf_convert(filename, format = "png", filenames = "graphs/fig01.png", dpi = 300)
+pdftools::pdf_convert(filename,
+  format = "png",
+  filenames = "graphs/fig01.png",
+  dpi = 300
+)
