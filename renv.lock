@@ -764,6 +764,25 @@
         "withr"
       ]
     },
+    "ggisoband": {
+      "Package": "ggisoband",
+      "Version": "0.0.0.9000",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "clauswilke",
+      "RemoteRepo": "ggisoband",
+      "RemoteRef": "master",
+      "RemoteSha": "eef779fb4e2c72084cca2eabdb1a582d5c9c23a8",
+      "Hash": "d7e67ac78b623fabe46ae79990fa39d6",
+      "Requirements": [
+        "MASS",
+        "ggplot2",
+        "isoband",
+        "rlang",
+        "scales"
+      ]
+    },
     "ggnewscale": {
       "Package": "ggnewscale",
       "Version": "0.4.7",

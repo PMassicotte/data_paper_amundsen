@@ -13,6 +13,7 @@
 # renv::install("mcguinlu/pathformatr")
 # renv::install("ropensci/rnaturalearthdata")
 # renv::install("ropensci/rnaturalearthhires")
+# renv::install("clauswilke/ggisoband")
 
 library(raster)
 library(tidyverse)
