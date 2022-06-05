@@ -33,6 +33,9 @@ library(tidync)
 library(ggquiver)
 library(ggalt)
 library(stars)
+library(rnaturalearth)
+library(rnaturalearthhires)
+
 
 sf_use_s2(FALSE)
 

@@ -1863,6 +1863,21 @@
         "sp"
       ]
     },
+    "rnaturalearthhires": {
+      "Package": "rnaturalearthhires",
+      "Version": "0.2.0",
+      "Source": "GitHub",
+      "RemoteType": "github",
+      "RemoteHost": "api.github.com",
+      "RemoteUsername": "ropensci",
+      "RemoteRepo": "rnaturalearthhires",
+      "RemoteRef": "master",
+      "RemoteSha": "2ed7a937f3cca4f44b157098c472f6b3ae8cd9f3",
+      "Hash": "c216e2f26397625c741ef6b6bb1c299c",
+      "Requirements": [
+        "sp"
+      ]
+    },
     "rosm": {
       "Package": "rosm",
       "Version": "0.2.5",
