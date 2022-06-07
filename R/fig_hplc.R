@@ -85,7 +85,7 @@ p1 <- hplc_viz %>%
   ) +
   ylab("Depth (m)") +
   xlab("Longitude") +
-  labs(fill = bquote("Chla" ~ (mg ~ m^{-3})))
+  labs(fill = bquote("Chlorophyll-a" ~ (mg ~ m^{-3})))
 
 p2 <- hplc_viz %>%
   drop_na(sum_phbd_a) %>%

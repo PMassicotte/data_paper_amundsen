@@ -169,7 +169,7 @@ p_t500_fluo <- df %>%
   ) +
   ylab("Depth (m)") +
   labs(
-    fill = bquote("Chla"~(mg~m^{-3}))
+    fill = bquote("Chlorophyll-a"~(mg~m^{-3}))
   ) +
   xlab("Longitude")
 
@@ -279,7 +279,7 @@ p_t300_fluo <- df %>%
   ) +
   ylab("Depth (m)") +
   labs(
-    fill = bquote("Chla"~(mg~m^{-3}))
+    fill = bquote("Chlorophyll-a"~(mg~m^{-3}))
   ) +
   xlab("Longitude")
 
