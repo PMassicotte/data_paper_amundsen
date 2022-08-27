@@ -1,7 +1,7 @@
 rm(list = ls())
 
 track <- st_read("../green_edge/data/doc.kml", layer = "Tracks")
-sampling_dates <- read_csv("greenedge_log_clean.csv")
+sampling_dates <- read_csv("data/clean/greenedge_log_clean.csv")
 
 stations <-
   read_csv("data/clean/greenedge_stations_clean.csv") %>%
