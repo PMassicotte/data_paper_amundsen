@@ -81,10 +81,9 @@ p <- df %>%
   )
 
 ggsave(
-  "graphs/fig_wind.png",
-  dpi = 600,
+  "graphs/fig05.pdf",
+  device = cairo_pdf,
   width = 8.3,
   height = 8.3 / 0.6,
   units = "cm"
 )
-

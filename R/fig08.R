@@ -32,8 +32,9 @@ ctd <- ctd %>%
     cdom_mg_m3
   ) %>%
   pivot_longer(-c(source:depth_m),
-               names_to = "variable",
-               values_to = "value") %>%
+    names_to = "variable",
+    values_to = "value"
+  ) %>%
   group_nest(source, transect, variable) %>%
   mutate(variable_interpolated = map(
     data,
@@ -169,7 +170,9 @@ p_t500_fluo <- df %>%
   ) +
   ylab("Depth (m)") +
   labs(
-    fill = bquote("Chlorophyll-a"~(mg~m^{-3}))
+    fill = bquote("Chlorophyll-a" ~ (mg ~ m^{
+      -3
+    }))
   ) +
   xlab("Longitude")
 
@@ -211,7 +214,9 @@ p_t500_cdom <- df %>%
   ) +
   ylab("Depth (m)") +
   labs(
-    fill = quote("CDOM"~(mg~m^{-3}))
+    fill = quote("CDOM" ~ (mg ~ m^{
+      -3
+    }))
   ) +
   xlab("Longitude")
 
@@ -234,7 +239,7 @@ p_t300_temp <- df %>%
   ) +
   ylab("Depth (m)") +
   labs(
-    fill = bquote("Temperature"~"(°C)")
+    fill = bquote("Temperature" ~ "(°C)")
   ) +
   xlab("Longitude")
 
@@ -254,7 +259,9 @@ p_t300_sal <- df %>%
   ) +
   ylab("Depth (m)") +
   labs(
-    fill = bquote("Salinity" ~ (g ~ kg^{-1}))
+    fill = bquote("Salinity" ~ (g ~ kg^{
+      -1
+    }))
   ) +
   xlab("Longitude")
 
@@ -279,7 +286,9 @@ p_t300_fluo <- df %>%
   ) +
   ylab("Depth (m)") +
   labs(
-    fill = bquote("Chlorophyll-a"~(mg~m^{-3}))
+    fill = bquote("Chlorophyll-a" ~ (mg ~ m^{
+      -3
+    }))
   ) +
   xlab("Longitude")
 
@@ -300,7 +309,7 @@ p_t300_trans <- df %>%
     legend.box.margin = margin(0, 0, 30, 0)
   ) +
   labs(
-    fill = bquote("Transmittance"~("%"))
+    fill = bquote("Transmittance" ~ ("%"))
   ) +
   xlab("Longitude")
 
@@ -321,7 +330,9 @@ p_t300_cdom <- df %>%
   ) +
   ylab("Depth (m)") +
   labs(
-    fill = quote("CDOM"~(mg~m^{-3}))
+    fill = quote("CDOM" ~ (mg ~ m^{
+      -3
+    }))
   ) +
   xlab("Longitude")
 
@@ -336,78 +347,11 @@ p <- row_1 / row_2 +
 
 # SIC ---------------------------------------------------------------------
 
-# I will use the coordinate of the CTD and MVP to extract the SIC that will be
-# plotted.
-
-ctd <- vroom::vroom("data/clean/greenedge_ctd.csv", delim = ",") %>%
-  filter(mission == "amundsen_2016") %>%
-  filter(str_starts(station, "G")) %>%
-  mutate(transect = parse_number(station) %/% 100 * 100) %>%
-  filter(transect %in% c(300, 500)) %>%
-  filter(depth_m <= 200) %>%
-  mutate(source = "ctd") %>%
-  distinct(date, transect, longitude, latitude)
-
-mvp <- vroom::vroom("data/clean/greenedge_mvp.csv", altrep_opts = TRUE) %>%
-  mutate(initial_longitude_deg = -initial_longitude_deg) %>%
-  filter(pres <= 200)
-
-# Recode the transect number
-mvp <- mvp %>%
-  mutate(transect = case_when(
-    section_number %in% c("2016001_01", "2016001_02") ~ 100,
-    section_number %in% c("2016001_05") ~ 400,
-    section_number %in% c("2016001_04") ~ 300,
-    section_number %in% c("2016001_08", "2016001_09") ~ 600,
-    section_number %in% c("2016001_06", "2016001_07") ~ 500,
-    section_number %in% c("2016001_03") ~ 200,
-    TRUE ~ NA_real_
-  )) %>%
-  filter(transect %in% c(300, 500)) %>%
-  add_column(source = "mvp", .before = 1) %>%
-  distinct(date, transect, longitude = initial_longitude_deg, latitude = initial_latitude_deg)
-
-stations <- bind_rows(ctd, mvp)
-
-stations %>%
-  group_by(transect) %>%
-  summarise(median_date = median(date))
-
-extract_sic <- function(date, transect, longitude, latitude) {
-
-  df <- tibble(date, transect, longitude, latitude) %>%
-    st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
-
-  # Read SIC and convert it to a spatial object.
-  sic_file <- glue("data/raw/sic/Arc_{format(df$date, '%Y%m%d')}_res3.125_pyres.nc")
-
-  sic <- read_ncdf(sic_file)
-
-  sic <- read_ncdf("../green_edge/data/ice_concentration/LongitudeLatitudeGrid_3.125km_Arctic.nc", var = c("longitude", "latitude")) %>%
-    as_tibble() %>%
-    select(-x, -y) %>%
-    mutate(sic = as.vector(sic$sea_ice_concentration)) %>%
-    filter(latitude >= 65 & between(longitude, -65, -50)) %>%
-    st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
-
-  # Find the closest pixels
-  df %>%
-    st_join(sic, nngeo::st_nn, k = 1) %>%
-    cbind(st_coordinates(.)) %>%
-    janitor::clean_names() %>%
-    as_tibble()
-}
-
-sic <- stations %>%
-  future_pmap_dfr(~extract_sic(..1, ..4, ..3, ..2), .progress = TRUE)
-
-write_csv(sic, "data/clean/sic_transects_300_500.csv")
-
-# Final plot --------------------------------------------------------------
+sic <- read_csv("data/clean/sic_transects_300_500_v2.csv")
 
 p_sic_t300 <- sic %>%
   filter(transect == 300) %>%
-  ggplot(aes(x = x, y = sic)) +
+  ggplot(aes(x = longitude, y = sea_ice_concentration)) +
   geom_line() +
   scale_x_continuous(expand = c(0, 0), labels = function(x) paste0(-x, "°W")) +
   xlab(NULL) +
@@ -419,7 +363,7 @@ p_sic_t300 <- sic %>%
 
 p_sic_t500 <- sic %>%
   filter(transect == 500) %>%
-  ggplot(aes(x = x, y = sic)) +
+  ggplot(aes(x = longitude, y = sea_ice_concentration)) +
   geom_line() +
   scale_x_continuous(expand = c(0, 0), labels = function(x) paste0(-x, "°W")) +
   xlab(NULL) +
@@ -431,7 +375,7 @@ p_sic_t500 <- sic %>%
 
 p1 <-
   {
-    (p_sic_t500 + labs(title = "Transect 500")) + p_sic_t500 + p_sic_t500 + p_sic_t500 +p_sic_t500
+    (p_sic_t500 + labs(title = "Transect 500")) + p_sic_t500 + p_sic_t500 + p_sic_t500 + p_sic_t500
   } + plot_layout(ncol = 5) -
   {
     p_t500_temp + p_t500_sal + p_t500_fluo + p_t500_trans + p_t500_cdom + plot_layout(ncol = 5)
@@ -443,7 +387,7 @@ p2 <-
     (p_sic_t300 + labs(title = "Transect 300")) + p_sic_t300 + p_sic_t300 + p_sic_t300 + p_sic_t300
   } + plot_layout(ncol = 5) -
   {
-    p_t300_temp + p_t300_sal + p_t300_fluo + p_t300_trans + p_t300_cdom +plot_layout(ncol = 5)
+    p_t300_temp + p_t300_sal + p_t300_fluo + p_t300_trans + p_t300_cdom + plot_layout(ncol = 5)
   } +
   plot_layout(nrow = 2, heights = c(0.15, 0.75))
 
@@ -451,17 +395,11 @@ p <- p1 / p2 +
   plot_layout(nrow = 2)
 
 ggsave(
-  "graphs/fig_ctd_mvp.pdf",
+  "graphs/fig08.pdf",
   device = cairo_pdf,
   width = 14,
   height = 12,
   units = "in"
 )
 
-knitr::plot_crop("graphs/fig_ctd_mvp.pdf")
-
-pdftools::pdf_convert(
-  pdf = "graphs/fig_ctd_mvp.pdf",
-  filenames = "graphs/fig_ctd_mvp.png",
-  dpi = 600
-)
+knitr::plot_crop("graphs/fig08.pdf")

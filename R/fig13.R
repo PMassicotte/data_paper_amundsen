@@ -85,7 +85,9 @@ p1 <- hplc_viz %>%
   ) +
   ylab("Depth (m)") +
   xlab("Longitude") +
-  labs(fill = bquote("Chlorophyll-a" ~ (mg ~ m^{-3})))
+  labs(fill = bquote(atop("Chlorophyll-a", (mg ~ m^{
+    -3
+  }))))
 
 p2 <- hplc_viz %>%
   drop_na(sum_phbd_a) %>%
@@ -114,7 +116,6 @@ p2 <- hplc_viz %>%
   facet_wrap(~transect, nrow = 1, strip.position = "top") +
   theme(
     panel.spacing = unit(1, "lines"),
-    # plot.title = element_text(hjust = 1),
     legend.margin = margin(0, 0, 0, 0),
     legend.position = "right",
     legend.box.margin = margin(0, 0, 30, 0),
@@ -123,7 +124,9 @@ p2 <- hplc_viz %>%
   ) +
   ylab("Depth (m)") +
   xlab("Longitude") +
-  labs(fill = quote(atop("Total\nphaeophorbid\nconcentration", (mg ~ m^{-3}))))
+  labs(fill = quote(atop("Total\nphaeophorbid\nconcentration", (mg ~ m^{
+    -3
+  }))))
 
 # Zooplankton -------------------------------------------------------------
 
@@ -154,7 +157,9 @@ p3 <- zoo %>%
   geom_col(position = "dodge") +
   facet_wrap(~transect, scales = "free_x") +
   labs(
-    y = quote("Abundance" ~ (ind~m^{-3})),
+    y = quote("Abundance" ~ (ind ~ m^{
+      -3
+    })),
     x = "Stations"
   ) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.02))) +
@@ -168,76 +173,11 @@ p3 <- zoo %>%
 
 # SIC ---------------------------------------------------------------------
 
-# I will use the coordinate of the CTD and MVP to extract the SIC that will be
-# plotted.
-
-ctd <- vroom::vroom("data/clean/greenedge_ctd.csv", delim = ",") %>%
-  filter(mission == "amundsen_2016") %>%
-  filter(str_starts(station, "G")) %>%
-  mutate(transect = parse_number(station) %/% 100 * 100) %>%
-  filter(transect %in% c(300, 500)) %>%
-  filter(depth_m <= 200) %>%
-  mutate(source = "ctd") %>%
-  distinct(date, transect, longitude, latitude)
-
-mvp <- vroom::vroom("data/clean/greenedge_mvp.csv", altrep = TRUE) %>%
-  mutate(initial_longitude_deg = -initial_longitude_deg) %>%
-  filter(pres <= 200)
-
-# Recode the transect number
-mvp <- mvp %>%
-  mutate(transect = case_when(
-    section_number %in% c("2016001_01", "2016001_02") ~ 100,
-    section_number %in% c("2016001_05") ~ 400,
-    section_number %in% c("2016001_04") ~ 300,
-    section_number %in% c("2016001_08", "2016001_09") ~ 600,
-    section_number %in% c("2016001_06", "2016001_07") ~ 500,
-    section_number %in% c("2016001_03") ~ 200,
-    TRUE ~ NA_real_
-  )) %>%
-  filter(transect %in% c(300, 500)) %>%
-  add_column(source = "mvp", .before = 1) %>%
-  distinct(date, transect, longitude = initial_longitude_deg, latitude = initial_latitude_deg)
-
-stations <- bind_rows(ctd, mvp)
-
-stations %>%
-  group_by(transect) %>%
-  summarise(median_date = median(date))
-
-extract_sic <- function(date, transect, longitude, latitude) {
-
-  df <- tibble(date, transect, longitude, latitude) %>%
-    st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
-
-  # Read SIC and convert it to a spatial object.
-  sic_file <- glue("data/raw/sic/Arc_{format(df$date, '%Y%m%d')}_res3.125_pyres.nc")
-
-  sic <- read_ncdf(sic_file)
-
-  sic <- read_ncdf("../green_edge/data/ice_concentration/LongitudeLatitudeGrid_3.125km_Arctic.nc", var = c("longitude", "latitude")) %>%
-    as_tibble() %>%
-    select(-x, -y) %>%
-    mutate(sic = as.vector(sic$sea_ice_concentration)) %>%
-    filter(latitude >= 65 & between(longitude, -65, -50)) %>%
-    st_as_sf(coords = c("longitude", "latitude"), crs = 4326)
-
-  # Find the closest pixels
-  df %>%
-    st_join(sic, nngeo::st_nn, k = 1) %>%
-    cbind(st_coordinates(.)) %>%
-    janitor::clean_names() %>%
-    as_tibble()
-}
-
-sic <- stations %>%
-  future_pmap_dfr(~extract_sic(..1, ..4, ..3, ..2), .progress = TRUE)
-
-# SIC plots ---------------------------------------------------------------
+sic <- read_csv("data/clean/sic_transects_300_500_v2.csv")
 
 p_sic_t300 <- sic %>%
   filter(transect == 300) %>%
-  ggplot(aes(x = x, y = sic)) +
+  ggplot(aes(x = longitude, y = sea_ice_concentration)) +
   geom_line() +
   scale_x_continuous(expand = c(0, 0), labels = function(x) paste0(-x, "°W")) +
   xlab(NULL) +
@@ -249,7 +189,7 @@ p_sic_t300 <- sic %>%
 
 p_sic_t500 <- sic %>%
   filter(transect == 500) %>%
-  ggplot(aes(x = x, y = sic)) +
+  ggplot(aes(x = longitude, y = sea_ice_concentration)) +
   geom_line() +
   scale_x_continuous(expand = c(0, 0), labels = function(x) paste0(-x, "°W")) +
   xlab(NULL) +
@@ -276,9 +216,9 @@ p <-
 #   plot_annotation(tag_levels = "A")
 
 ggsave(
-  "graphs/fig_hplc.png",
-  dpi = 600,
-  width = 12,
-  height = 14,
-  units = "in"
+  "graphs/fig13.pdf",
+  device = cairo_pdf,
+  width = 20,
+  height = 20,
+  units = "cm"
 )
