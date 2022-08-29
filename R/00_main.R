@@ -34,6 +34,7 @@ library(rnaturalearthhires)
 library(terra)
 library(tidync)
 library(data.table)
+library(piggyback)
 
 sf_use_s2(FALSE)
 
