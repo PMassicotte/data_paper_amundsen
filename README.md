@@ -3,7 +3,7 @@
 <!-- badges: start -->
 <!-- badges: end -->
 
-This is the repository for the [data paper for the Green Edge oceanic expedition]`).
+This is the repository for the [data paper for the Green Edge oceanic expedition](https://essd.copernicus.org/preprints/essd-2022-41/).
 
 ## Using this repository
 
