@@ -44,14 +44,14 @@ baffin <- ne_countries(scale = "large", returnclass = "sf") %>%
 
 plot(baffin)
 
-bb <- raster("data/raw/IBCAO_V3_500m_RR.tif") %>%
+bb <- rast("data/raw/IBCAO_V3_500m_RR.tif") %>%
   crop(baffin)
 
 bb2 <- bb %>%
-  sampleRegular(size = 1e4, asRaster = TRUE) %>%
-  projectRaster(crs = "+proj=longlat +datum=WGS84 +no_defs") %>%
-  rasterToPoints() %>%
-  as_tibble() %>%
+  spatSample(size = 1e4, as.raster = TRUE, method = "regular") |>
+  project("+proj=longlat +datum=WGS84 +no_defs") |>
+  as.data.frame(xy = TRUE) |>
+  as_tibble() |>
   rename(z = 3)
 
 wm <-
@@ -89,7 +89,6 @@ shapes2 <- shapes %>%
   do.call(rbind, .) %>%
   mutate(date = as.Date(date)) %>%
   inner_join(stations2, by = c("date" = "median_date"))
-
 
 # Interpolate bathy -------------------------------------------------------
 
@@ -227,12 +226,15 @@ p1 <- bb2 %>%
 
 # Float -------------------------------------------------------------------
 
-files <- list.files("../../float_ice_detection/data/raw/floats/full_profiles/", full.names = TRUE)
+files <- fs::dir_ls(
+  "data/raw/floats/full_profiles/",
+  glob = "*.Rdata"
+)
 
 tmpfile <- future_map(files, function(x) {
   load(x)
 
-  tmpfile <- tempfile(fileext = ".feather")
+  tmpfile <- tempfile(fileext = ".csv")
 
   write_csv(dataFloat, tmpfile)
 
@@ -314,7 +316,7 @@ glider <- glider %>%
 
 # Transects ---------------------------------------------------------------
 
-track <- st_read("../green_edge/data/doc.kml", layer = "Tracks")
+track <- st_read("data/raw/doc.kml", layer = "Tracks")
 sampling_dates <- read_csv("data/clean/greenedge_log_clean.csv")
 
 stations <-
@@ -474,9 +476,3 @@ ggsave(
 )
 
 knitr::plot_crop(filename)
-
-pdftools::pdf_convert(filename,
-  format = "png",
-  filenames = "graphs/fig01.png",
-  dpi = 300
-)
