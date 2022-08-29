@@ -83,4 +83,4 @@ sic <- stations |>
 sic
 
 # Save the results
-write_csv(sic, "data/clean/sic_transects_300_500_v2.csv")
+write_csv(sic, "data/clean/sic_transects_300_500.csv")

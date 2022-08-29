@@ -347,7 +347,7 @@ p <- row_1 / row_2 +
 
 # SIC ---------------------------------------------------------------------
 
-sic <- read_csv("data/clean/sic_transects_300_500_v2.csv")
+sic <- read_csv("data/clean/sic_transects_300_500.csv")
 
 p_sic_t300 <- sic %>%
   filter(transect == 300) %>%
