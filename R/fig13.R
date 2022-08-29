@@ -163,6 +163,12 @@ p3 <- zoo %>%
     x = "Stations"
   ) +
   scale_y_continuous(expand = expansion(mult = c(0, 0.02))) +
+  scale_fill_manual(
+    values = c(
+      "Copepods" = "#D80032",
+      "Non-Copepods" = "#2274A5"
+    )
+  ) +
   labs(
     fill = element_blank()
   ) +
