@@ -8,7 +8,8 @@
 
 rm(list = ls())
 
-track <- st_read("../green_edge/data/doc.kml", layer = "Tracks")
+track <- st_read("data/raw/doc.kml", layer = "Tracks")
+
 sampling_dates <- read_csv("data/clean/greenedge_log_clean.csv")
 
 stations <-
@@ -64,8 +65,6 @@ wm <-
 # Crop MIZ shape ----------------------------------------------------------
 
 shapefiles <- fs::dir_ls("data/raw/shapefiles_miz/", glob = "*.shp")
-# shapefiles <- fs::dir_ls("~/Downloads/MIZ files/", glob = "*.shp", recurse = TRUE)
-# shapefiles <- "/home/pmassicotte/Downloads/MIZ files/nic_miz2016163nc_pl_a/nic_miz2016163nc_pl_a.shp"
 baffin_interior <-
   st_read("data/clean/shapefile_baffin_bay/test2.shp")
 

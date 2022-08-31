@@ -14,7 +14,7 @@ stations <-
   mutate(transect = as.factor(transect)) %>%
   drop_na(date)
 
-dow <- read_csv("../green_edge/data/clean/dow_amundsen_2016.csv")
+dow <- read_csv("data/raw/dow_amundsen_2016.csv")
 
 # Get the geographical coordinates
 dow <- dow %>%
